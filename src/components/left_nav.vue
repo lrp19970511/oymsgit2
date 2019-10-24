@@ -33,14 +33,14 @@ export default {
     font-weight: 600;
     color:teal;
 }
+#LeftNav .el-menu-item:focus{
+  background-color:rgb(105, 175, 236);
+}
 .el-menu{
   border-right:solid 1px rgb(41, 39, 40) !important;
 }
 
 #LeftNav .el-menu-item:hover{
     background-color: rgb(83, 159, 226);
-}
-.el-menu-item:active{    
-    background-color: rgb(83, 159, 226) !important;
 }
 </style>

@@ -1,14 +1,16 @@
 <template>
   <div id="header">
     <el-col>
-      <el-col :span="8">
+      <el-col :span="15">
         <div class="title">OY智能商城后台管理系统</div>
       </el-col>
-      <el-col :span="6" :offset="10">
+      <el-col :span="9">
         <el-row class="rightNav">
-          <el-button type="success" plain>登录</el-button>
-          <el-button type="success" plain>注册</el-button>
-          <i class="el-icon-s-tools"></i>
+          <el-button type="success" plain >登录</el-button>
+          <el-button type="success" plain >注册</el-button>
+          <div id="settingIcon">
+         <i class="el-icon-s-tools " ></i>
+         </div>
         </el-row>
       </el-col>
     </el-col>
@@ -17,20 +19,30 @@
 
 <script>
 export default {
-  name: "Head"
+  name: "Head",
 };
 </script>
 
 <style>
-.set  {
-  display: inline-block;
-  height: 60px;
-  font-size: 24px;
-  margin: 0 15px;
+.rightNav .el-button--success.is-plain{
+  background:rgb(95, 99, 104);
+   height: 40px;
+   width: 80px;
+   margin-top: 10px;
+   margin-right: 10px;
+   border:none;
+}
+#settingIcon {
+  font-size: 30px;
+}
+.rightNav{
+  display: flex;
+  float:right
 }
 .title {
   font-size: 28px;
-  text-align: center;
+  text-align: left;
+  margin-left: 60px;
   font-weight: 600;
   color: rgb(194, 150, 150);
 }
