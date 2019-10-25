@@ -8,6 +8,7 @@ const Shopping = () => import('../components/main-item/shopping.vue')
 const UserManager = () => import('../components/main-item/userManager.vue')
 const Main = () => import('../components/main_content')
 const Register = () => import('../components/function/register.vue')
+const Login = () => import('../components/function/login.vue')
 //1.通过VUE,use（插件），安装插件
 Vue.use(VueRouter)
 //2.创建VueRouter对象
@@ -32,7 +33,13 @@ const routes = [
   {
     path: '/register',
     components: {
-      'reg': Register
+      'fun': Register
+    }
+  },
+  {
+    path: '/login',
+    components: {
+      'fun': Login
     }
   }
 ]

@@ -13,7 +13,7 @@
         </el-main>
       </el-container>
     </el-container>
-    <router-view name="reg"></router-view>
+    <router-view name="fun"></router-view>
   </div>
 </template>
 
@@ -23,13 +23,14 @@ import LeftNav from "./components/left_nav";
 import Main from "./components/main_content";
 import Foot from "./components/footer";
 const Register = () => import("./components/function/register.vue");
+const Login = () => import("./components/function/login.vue");
 export default {
   name: "app",
   components: {
     Head,
     LeftNav,
     Main,
-    Foot,Register
+    Foot,Register,Login
   }
 };
 </script>

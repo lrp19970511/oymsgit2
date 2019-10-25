@@ -6,7 +6,9 @@
       </el-col>
       <el-col :span="9">
         <el-row class="rightNav">
+          <router-link to="/login" tag="div">
           <el-button type="success" plain>登录</el-button>
+          </router-link>
           <router-link to="/register" tag="div">
             <el-button type="success" plain>注册</el-button>
           </router-link>

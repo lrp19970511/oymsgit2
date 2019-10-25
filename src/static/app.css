@@ -2,11 +2,12 @@
     width: 100%;
     height: 1000px;
   }
-  .el-header {
-    background-color: rgb(55, 55, 55);
-    line-height: 60px;
+.el-header {
+    
   }
   .header {
+    background-color: rgb(55, 55, 55);
+    line-height: 60px;
     text-align: right;
     font-size: 12px;
     width: 100%;
