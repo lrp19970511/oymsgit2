@@ -6,11 +6,13 @@
       </el-col>
       <el-col :span="9">
         <el-row class="rightNav">
-          <el-button type="success" plain >登录</el-button>
-          <el-button type="success" plain >注册</el-button>
+          <el-button type="success" plain>登录</el-button>
+          <router-link to="/register" tag="div">
+            <el-button type="success" plain>注册</el-button>
+          </router-link>
           <div id="settingIcon">
-         <i class="el-icon-s-tools " ></i>
-         </div>
+            <i class="el-icon-s-tools"></i>
+          </div>
         </el-row>
       </el-col>
     </el-col>
@@ -19,25 +21,25 @@
 
 <script>
 export default {
-  name: "Head",
+  name: "Head"
 };
 </script>
 
 <style>
-.rightNav .el-button--success.is-plain{
-  background:rgb(95, 99, 104);
-   height: 40px;
-   width: 80px;
-   margin-top: 10px;
-   margin-right: 10px;
-   border:none;
+.rightNav .el-button--success.is-plain {
+  background: rgb(95, 99, 104);
+  height: 40px;
+  width: 80px;
+  margin-top: 10px;
+  margin-right: 10px;
+  border: none;
 }
 #settingIcon {
   font-size: 30px;
 }
-.rightNav{
+.rightNav {
   display: flex;
-  float:right
+  float: right;
 }
 .title {
   font-size: 28px;
