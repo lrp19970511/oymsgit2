@@ -125,6 +125,7 @@ export default {
       return isJPG && isLt2M;
     },
     submitForm(formName) {
+      alert(this.ruleForm.imageUrl)
       if(this.ruleForm.password == this.ruleForm.isPassword){
       this.$refs[formName].validate(valid => {
         if (valid) {

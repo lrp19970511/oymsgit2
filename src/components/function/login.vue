@@ -4,34 +4,40 @@
       <div class="form_layout">
         <!--  -->
         <div class="fun_head">登录</div>
-      
-          <el-form
-            :model="ruleForm"
-            :rules="rules"
-            ref="ruleForm"
-            label-width="100px"
-            class="demo-ruleForm ab_parent"
-          >
-            <el-form-item label="用户名" prop="name">
-              <el-input v-model="ruleForm.name" prefix-icon="el-icon-user" placeholder="请输入用户名"></el-input>
-            </el-form-item>
-            <el-form-item label="密码" prop="password">
-              <el-input
-                v-model="ruleForm.password"
-                prefix-icon="el-icon-lock"
-                placeholder="请输入密码"                
-                 type="password"
-              ></el-input>
-            </el-form-item>
-            <el-form-item label="验证码" prop="captcha_code">
-               <el-input  placeholder="请输入验证码"></el-input>
-            </el-form-item>
-            <div class="clickBtn my_footer">
-              <el-button type="success" plain @click="submitForm('ruleForm')">登录</el-button>
-              <el-button type="success" plain @click="exitForm">取消</el-button>
-            </div>
-          </el-form>
-        
+
+        <el-form
+          :model="ruleForm"
+          :rules="rules"
+          ref="ruleForm"
+          label-width="100px"
+          class="demo-ruleForm ab_parent"
+        >
+          <el-form-item label="用户名" prop="name">
+            <el-input v-model="ruleForm.name" prefix-icon="el-icon-user" placeholder="请输入用户名"></el-input>
+          </el-form-item>
+          <el-form-item label="密码" prop="password">
+            <el-input
+              v-model="ruleForm.password"
+              prefix-icon="el-icon-lock"
+              placeholder="请输入密码"
+              type="password"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="验证码" prop="captcha_code">
+            <el-input
+              class="log-input"
+              v-model="ruleForm.captcha_code"
+              placeholder="验证码"
+              prefix-icon="icon-login_auth"
+              @keydown.enter.native="collateCode('form')"
+            ></el-input>
+            <span class="checkCode" @click="createCode">{{ checkCode}}</span>
+          </el-form-item>
+          <div class="clickBtn my_footer">
+            <el-button type="success" plain @click="submitForm('ruleForm')">登录</el-button>
+            <el-button type="success" plain @click="exitForm">取消</el-button>
+          </div>
+        </el-form>
       </div>
     </div>
   </div>
@@ -43,12 +49,10 @@ export default {
     return {
       ruleForm: {
         name: "",
-        password: ""
+        password: "",
+        captcha_code:''
       },
-      loginForm: {
-        captcha_key: "",
-        captcha_code: ""
-      },
+      checkCode:'',
       rules: {
         name: [
           { required: true, message: "请输入用户名", trigger: "blur" },
@@ -61,9 +65,31 @@ export default {
       }
     };
   },
-
+mounted () {
+    this.createCode();
+  },
   methods: {
-  
+    createCode() {
+		var code = "";
+		const codeLength = 4; //验证码的长度  
+		const random = new Array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+			'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'); //随机数  
+		for(let i = 0; i < codeLength; i++) { //循环操作  
+			let index = Math.floor(Math.random() * 36); //取得随机数的索引（0~35）  
+			code += random[index]; //根据索引取得随机数加到code上  
+		}
+		this.checkCode = code; //把code值赋给验证码  
+  },
+  collateCode() {
+      if(this.form.captcha_code != this.checkCode) {
+         this.$message({
+              message: "验证码错误，注意大写字母",
+              type: "warning"
+        });
+        this.createCode();
+        return false;
+      };
+  },
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
@@ -93,7 +119,8 @@ export default {
   color: #fff;
   border-radius: 10px 10px 0 0;
 }
-.form_layout .el-container{}
+.form_layout .el-container {
+}
 .bg_layout {
   position: absolute;
   width: 100%;
