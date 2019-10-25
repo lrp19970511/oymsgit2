@@ -42,8 +42,6 @@ export default {
 </script>
 
 <style>
-.userContent {
-}
 .name {
   width: 100px;
   text-align: left;

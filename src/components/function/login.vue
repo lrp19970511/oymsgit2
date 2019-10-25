@@ -135,8 +135,6 @@ mounted () {
   color: #fff;
   border-radius: 10px 10px 0 0;
 }
-.form_layout .el-container {
-}
 .bg_layout {
   position: absolute;
   width: 100%;
@@ -164,8 +162,6 @@ mounted () {
 }
 
 /* 底部注册栏 */
-.clickBtn {
-}
 .clickBtn .el-button {
   height: 40px;
   width: 145px !important;
