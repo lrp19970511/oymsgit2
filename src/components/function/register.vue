@@ -10,70 +10,33 @@
           label-width="100px"
           class="demo-ruleForm ab_parent1"
         >
-          <el-form-item
-            label="用户名"
-            prop="name"
-          >
-            <el-input
-              v-model="ruleForm.name"
-              prefix-icon="el-icon-user"
-            ></el-input>
+          <el-form-item label="用户名" prop="name">
+            <el-input v-model="ruleForm.name" prefix-icon="el-icon-user"></el-input>
           </el-form-item>
-          <el-form-item
-            label="密码"
-            prop="password"
-          >
-            <el-input
-              v-model="ruleForm.password"
-              prefix-icon="el-icon-lock"
-              type="password"
-            ></el-input>
+          <el-form-item label="密码" prop="password">
+            <el-input v-model="ruleForm.password" prefix-icon="el-icon-lock" type="password"></el-input>
           </el-form-item>
-          <el-form-item
-            label="确认密码"
-            prop="isPassword"
-          >
-            <el-input
-              v-model="ruleForm.isPassword"
-              prefix-icon="el-icon-lock"
-              type="password"
-            ></el-input>
+          <el-form-item label="确认密码" prop="isPassword">
+            <el-input v-model="ruleForm.isPassword" prefix-icon="el-icon-lock" type="password"></el-input>
           </el-form-item>
-          <el-form-item
-            label="上传头像"
-            prop="imageUrl"
-          >
+          <el-form-item label="上传头像" prop="imageUrl">
             <el-upload
               class="avatar-uploader"
-              action="http://localhost:8001/user/register"
+              action="http://localhost:8001/file/upload"
+              name="imgUpload"
               :show-file-list="false"
               :on-success="handleAvatarSuccess"
               :before-upload="beforeAvatarUpload"
               :header="token"
             >
-              <img
-                v-if="ruleForm.imageUrl"
-                :src="ruleForm.imageUrl"
-                class="avatar"
-              />
-              <i
-                v-else
-                class="el-icon-plus avatar-uploader-icon"
-              ></i>
+              <img v-if="ruleForm.imageUrl" :src="ruleForm.imageUrl" class="avatar" />
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
             </el-upload>
           </el-form-item>
 
           <el-row class="clickBtn my_footer">
-            <el-button
-              type="success"
-              plain
-              @click="submitForm('ruleForm')"
-            >注册</el-button>
-            <el-button
-              type="success"
-              plain
-              @click="exitForm"
-            >取消</el-button>
+            <el-button type="success" plain @click="submitForm('ruleForm')">注册</el-button>
+            <el-button type="success" plain @click="exitForm">取消</el-button>
           </el-row>
         </el-form>
       </div>
@@ -85,7 +48,7 @@ export default {
   name: "Register",
   data() {
     return {
-      token:"dasad",
+      token: "dasad",
       ruleForm: {
         name: "",
         password: "",
@@ -97,12 +60,12 @@ export default {
           { required: true, message: "请输入用户名", trigger: "blur" },
           { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" }
         ],
-        password:[
-            { required: true, message: "请输入密码", trigger: "blur" },
+        password: [
+          { required: true, message: "请输入密码", trigger: "blur" },
           { min: 8, max: 15, message: "长度在 8 到 15 个字符", trigger: "blur" }
         ],
-        isPassword:[
-            { required: true, message: "请输入确认密码", trigger: "blur" },
+        isPassword: [
+          { required: true, message: "请输入确认密码", trigger: "blur" },
           { min: 8, max: 15, message: "长度在 8 到 15 个字符", trigger: "blur" }
         ]
       }
@@ -110,10 +73,15 @@ export default {
   },
   methods: {
     handleAvatarSuccess(res, file) {
-      this.ruleForm.imageUrl = URL.createObjectURL(file.raw);
+      if(res.isSuccess){
+      this.ruleForm.imageUrl = res.message;
+      }else{
+        alert("图片上传失败");
+        return 
+      }
     },
     beforeAvatarUpload(file) {
-      const isJPG = file.type === "image/jpeg" || file.type === "image/png";
+      const isJPG = file.type === "image/jpeg" || file.type === "image/png" ||file.type === "image/jpg";
       const isLt2M = file.size / 1024 / 1024 < 10;
 
       if (!isJPG) {
@@ -125,31 +93,41 @@ export default {
       return isJPG && isLt2M;
     },
     submitForm(formName) {
-      alert(this.ruleForm.imageUrl)
-      if(this.ruleForm.password == this.ruleForm.isPassword){
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          alert("submit!");
-          this.$axios.post('http://localhost:8001/user/register', {
-           userName: this.ruleForm.name,
-           userPassword: this.ruleForm.password,
-           userImgUrl:this.ruleForm.imageUrl
-           })
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-      });
-    }else{
-        alert("两次密码不一致")
-        return
-    }
-  },
+      if (this.ruleForm.password == this.ruleForm.isPassword) {
+        this.$refs[formName].validate(valid => {
+          if (valid) {
+            this.$axios
+              .post("/user/register", {
+                userName: this.ruleForm.name,
+                userPassword: this.ruleForm.password,
+                userImageUrl: this.ruleForm.imageUrl
+              })
+              .then((response) => {
+                if(!response.data.isSuccess){
+                  alert("用户名已存在")
+                  return
+                }else{
+                  alert("注册成功")
+                  this.$router.go(-1);
+                }
+              })
+              .catch(function(error) {
+                console.log(error);
+              });
+          } else {
+            return false;
+          }
+        });
+      } else {
+        alert("两次密码不一致");
+        return;
+      }
+    },
     exitForm() {
-       this.$router.go(-1);//返回上一层
+      this.$router.go(-1); //返回上一层
     }
   }
-}
+};
 </script>
 <style>
 /* 透明层背景 */

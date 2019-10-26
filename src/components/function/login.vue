@@ -58,10 +58,6 @@ export default {
           { required: true, message: "请输入用户名", trigger: "blur" },
           { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" }
         ],
-        password: [
-          { required: true, message: "请输入密码", trigger: "blur" },
-          { min: 8, max: 15, message: "长度在 8 到 15 个字符", trigger: "blur" }
-        ]
       }
     };
   },
@@ -91,9 +87,29 @@ mounted () {
       };
   },
     submitForm(formName) {
+      
       this.$refs[formName].validate(valid => {
         if (valid) {
-          alert("submit!");
+          this.$axios
+              .post("/user/login", {
+                userName: this.ruleForm.name,
+                userPassword: this.ruleForm.password
+              })
+              .then((response) => {
+                if(response.data.isSuccess){
+                  alert("登录成功")
+                  localStorage.setItem("username",this.ruleForm.name)
+                  localStorage.setItem("userImg",response.data.message)
+                   this.$router.push('/')
+                   location.reload()
+                }else{
+                  alert("用户名或密码错误")
+                  return
+                }
+              })
+              .catch(function(error) {
+                console.log(error);
+              });
         } else {
           console.log("error submit!!");
           return false;
@@ -118,8 +134,6 @@ mounted () {
   text-align: center;
   color: #fff;
   border-radius: 10px 10px 0 0;
-}
-.form_layout .el-container {
 }
 .bg_layout {
   position: absolute;
@@ -148,8 +162,6 @@ mounted () {
 }
 
 /* 底部注册栏 */
-.clickBtn {
-}
 .clickBtn .el-button {
   height: 40px;
   width: 145px !important;
