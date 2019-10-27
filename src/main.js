@@ -9,6 +9,7 @@ Vue.use(ElementUI);
 Vue.config.productionTip = false
 Vue.prototype.$store = store
 Vue.prototype.$axios = axios
+axios.defaults.baseURL = 'http://localhost:8001'
 new Vue({
   axios,
   store,

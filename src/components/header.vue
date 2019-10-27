@@ -8,11 +8,22 @@
         <el-row>
           <el-row v-if="showBtn != null" class="userContent">
             <div id="settingIcon">
-              <i class="el-icon-s-tools"></i>
+              <el-dropdown :hide-on-click="true">
+                <span class="el-dropdown-link">
+                  <i class="el-icon-s-tools"></i>
+                </span>
+
+                <el-dropdown-menu slot="dropdown" class="test">
+                  <router-link to="/userinfo" tag="div">
+                    <el-dropdown-item>用户信息</el-dropdown-item>
+                  </router-link>
+                  <el-dropdown-item @click.native="exitLogin">退出登录</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
             </div>
             <h2 class="name" >{{showBtn}}</h2>
             <div class="user_avatar">
-              <img :src="userUrl" class="avatar" style="width:40px;height:40px;" />
+              <img :src="userUrl" class="avatar" style="width:40px;height:40px;" id="userImg"/>
             </div>
           </el-row>
           <div v-else class="rightNav">
@@ -37,11 +48,32 @@ export default {
       showBtn: localStorage.getItem("username"),
       userUrl: localStorage.getItem("userImg")
     };
-  }
+  },
+  methods:{
+     checkUserImg(){
+       if(localStorage.getItem("userImg") == null || localStorage.getItem("userImg") == '' || localStorage.getItem("userImg") == undefined){
+         this.userUrl = require('../assets/logo.png')
+       }else{
+       }
+     },
+     exitLogin() {
+      localStorage.clear();
+      window.location.reload();
+    }
+  },
+  mounted() {
+        this.checkUserImg()
+    },
+
 };
 </script>
 
 <style>
+#userImg{
+  width:40px;
+  height:40px;
+  border-radius:50px; 
+}
 .name {
   width: 100px;
   text-align: left;
@@ -72,6 +104,10 @@ export default {
 #settingIcon {
   font-size: 30px;
   float: right;
+  padding-right: 64px;
+}
+.el-icon-s-tools {
+  font-size: 32px;
 }
 .rightNav {
   display: flex;

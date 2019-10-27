@@ -91,7 +91,7 @@ mounted () {
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.$axios
-              .post("http://localhost:8001/user/login", {
+              .post("/user/login", {
                 userName: this.ruleForm.name,
                 userPassword: this.ruleForm.password
               })

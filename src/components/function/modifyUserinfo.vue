@@ -2,7 +2,7 @@
   <div id="Register">
     <div class="bg_layout">
       <div class="form_layout">
-        <div class="fun_head">注册</div>
+        <div class="fun_head">修改用户信息</div>
         <el-form
           :model="ruleForm"
           :rules="rules"
@@ -23,7 +23,6 @@
             <el-upload
               class="avatar-uploader"
               action="http://localhost:8001/file/upload"
-              name="imgUpload"
               :show-file-list="false"
               :on-success="handleAvatarSuccess"
               :before-upload="beforeAvatarUpload"
@@ -35,7 +34,7 @@
           </el-form-item>
 
           <el-row class="clickBtn my_footer">
-            <el-button type="success" plain @click="submitForm('ruleForm')">注册</el-button>
+            <el-button type="success" plain @click="submitForm('ruleForm')">修改</el-button>
             <el-button type="success" plain @click="exitForm">取消</el-button>
           </el-row>
         </el-form>
@@ -45,7 +44,7 @@
 </template>
 <script>
 export default {
-  name: "Register",
+  name: "ModifyUserinfo",
   data() {
     return {
       token: "dasad",
@@ -62,26 +61,21 @@ export default {
         ],
         password: [
           { required: true, message: "请输入密码", trigger: "blur" },
-          { min: 8, max: 15, message: "长度在 8 到 15 个字符", trigger: "blur" }
+          { min: 1, max: 15, message: "长度在 8 到 15 个字符", trigger: "blur" }
         ],
         isPassword: [
           { required: true, message: "请输入确认密码", trigger: "blur" },
-          { min: 8, max: 15, message: "长度在 8 到 15 个字符", trigger: "blur" }
+          { min: 1, max: 15, message: "长度在 8 到 15 个字符", trigger: "blur" }
         ]
       }
     };
   },
   methods: {
     handleAvatarSuccess(res, file) {
-      if(res.isSuccess){
-      this.ruleForm.imageUrl = res.message;
-      }else{
-        alert("图片上传失败");
-        return 
-      }
+      this.ruleForm.imageUrl = URL.createObjectURL(file.raw);
     },
     beforeAvatarUpload(file) {
-      const isJPG = file.type === "image/jpeg" || file.type === "image/png" ||file.type === "image/jpg";
+      const isJPG = file.type === "image/jpeg" || file.type === "image/png";
       const isLt2M = file.size / 1024 / 1024 < 10;
 
       if (!isJPG) {
@@ -97,7 +91,7 @@ export default {
         this.$refs[formName].validate(valid => {
           if (valid) {
             this.$axios
-              .post("/user/register", {
+              .post("http://localhost:8001/user/register", {
                 userName: this.ruleForm.name,
                 userPassword: this.ruleForm.password,
                 userImageUrl: this.ruleForm.imageUrl

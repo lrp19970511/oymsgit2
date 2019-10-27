@@ -24,17 +24,20 @@ import Main from "./components/main_content";
 import Foot from "./components/footer";
 const Register = () => import("./components/function/register.vue");
 const Login = () => import("./components/function/login.vue");
+const Userinfo = () => import("./components/function/userinfo");
+const ModifyUserinfo = () => import('./components/function/modifyUserinfo.vue')
+
 export default {
   name: "app",
   components: {
     Head,
     LeftNav,
     Main,
-    Foot,Register,Login
+    Foot,Register,Login,Userinfo,ModifyUserinfo
   }
 };
 </script>
 
 <style>
-@import "./static/app.css";
+@import "./static/css/app.css";
 </style>
