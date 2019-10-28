@@ -13,7 +13,7 @@
           class="demo-ruleForm ab_parent"
         >
           <el-form-item label="用户名" prop="name">
-            <el-input v-model="ruleForm.name" prefix-icon="el-icon-user" placeholder="请输入用户名"></el-input>
+            <el-input v-model="ruleForm.name" prefix-icon="el-icon-user" auto-complete="off" placeholder="请输入用户名"></el-input>
           </el-form-item>
           <el-form-item label="密码" prop="password">
             <el-input
@@ -21,6 +21,7 @@
               prefix-icon="el-icon-lock"
               placeholder="请输入密码"
               type="password"
+              auto-complete="off"
             ></el-input>
           </el-form-item>
           <el-form-item label="验证码" prop="captcha_code">
@@ -61,10 +62,12 @@ export default {
       }
     };
   },
+ 
 mounted () {
     this.createCode();
   },
   methods: {
+    
     createCode() {
 		var code = "";
 		const codeLength = 4; //验证码的长度  
@@ -87,7 +90,7 @@ mounted () {
       };
   },
     submitForm(formName) {
-      
+      var that = this;
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.$axios
@@ -97,11 +100,17 @@ mounted () {
               })
               .then((response) => {
                 if(response.data.isSuccess){
-                  alert("登录成功")
                   localStorage.setItem("username",this.ruleForm.name)
                   localStorage.setItem("userImg",response.data.message)
-                   this.$router.push('/')
-                   location.reload()
+                  localStorage.setItem("islogin",response.data.isSuccess)
+                  this.$router.push('/')
+                  this.$store.state.showUserMessage = true
+                  this.$store.state.userName = localStorage.getItem("username")
+                  this.$store.state.userImgUrl = localStorage.getItem("userImg")
+                  this.$message({
+                  type: "success",
+                  message: "登录成功!"
+                });
                 }else{
                   alert("用户名或密码错误")
                   return
