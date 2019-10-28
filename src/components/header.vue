@@ -6,14 +6,13 @@
       </el-col>
       <el-col :span="9">
         <el-row>
-          <el-row v-if="showBtn != null" class="userContent">
+          <el-row v-show="showUserMessage" class="userContent">
             <div id="settingIcon">
               <el-dropdown :hide-on-click="true">
-                <span class="el-dropdown-link">
+                <span class="el-dropdown-link"  id="setting">
                   <i class="el-icon-s-tools"></i>
                 </span>
-
-                <el-dropdown-menu slot="dropdown" class="test">
+                <el-dropdown-menu slot="dropdown" class="settingList">
                   <router-link to="/userinfo" tag="div">
                     <el-dropdown-item>用户信息</el-dropdown-item>
                   </router-link>
@@ -21,12 +20,12 @@
                 </el-dropdown-menu>
               </el-dropdown>
             </div>
-            <h2 class="name" >{{showBtn}}</h2>
+            <h2 class="name" >{{userName}}</h2>
             <div class="user_avatar">
-              <img :src="userUrl" class="avatar" style="width:40px;height:40px;" id="userImg"/>
+              <img :src="userImgUrl" class="avatar" style="width:40px;height:40px;" id="userImg"/>
             </div>
           </el-row>
-          <div v-else class="rightNav">
+          <div v-show="!showUserMessage" class="rightNav">
             <router-link to="/login" tag="div">
               <el-button type="success" plain>登录</el-button>
             </router-link>
@@ -45,25 +44,41 @@ export default {
   name: "Head",
   data() {
     return {
-      showBtn: localStorage.getItem("username"),
-      userUrl: localStorage.getItem("userImg")
+      showUser:false,
+       userUrl: localStorage.getItem("userImg")
     };
   },
   methods:{
-     checkUserImg(){
-       if(localStorage.getItem("userImg") == null || localStorage.getItem("userImg") == '' || localStorage.getItem("userImg") == undefined){
-         this.userUrl = require('../assets/logo.png')
-       }else{
-       }
-     },
+      checkUserImg(){
+        if(localStorage.getItem("userImg") == null || localStorage.getItem("userImg") == '' || localStorage.getItem("userImg") == undefined){
+          this.userUrl = require('../assets/logo.png')
+        }else{
+        }
+      },
      exitLogin() {
       localStorage.clear();
-      window.location.reload();
+      this.$store.state.showUserMessage = false
+      this.$router.push('/')
+      this.$message({
+                  type: "success",
+                  message: "已退出!"
+                });
     }
   },
   mounted() {
         this.checkUserImg()
     },
+    computed:{
+      showUserMessage(){
+        return this.$store.state.showUserMessage
+      },
+      userName(){
+        return this.$store.state.userName
+      },
+      userImgUrl(){
+        return this.$store.state.userImgUrl
+      }
+    }
 
 };
 </script>
@@ -119,5 +134,11 @@ export default {
   margin-left: 60px;
   font-weight: 600;
   color: rgb(194, 150, 150);
+}
+#setting :hover{
+  color:rgb(105, 58, 58)
+}
+#settingList{
+  margin-top: -30px;
 }
 </style>

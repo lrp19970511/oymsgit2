@@ -9,6 +9,7 @@
           <left-nav></left-nav>
         </el-aside>
         <el-main>
+          <router-view name="title"></router-view>
           <Main></Main>
         </el-main>
       </el-container>
@@ -34,7 +35,7 @@ export default {
     LeftNav,
     Main,
     Foot,Register,Login,Userinfo,ModifyUserinfo
-  }
+  },
 };
 </script>
 
