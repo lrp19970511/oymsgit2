@@ -9,11 +9,10 @@
           <el-row v-show="showUserMessage" class="userContent">
             <div id="settingIcon">
               <el-dropdown :hide-on-click="true">
-                <span class="el-dropdown-link">
+                <span class="el-dropdown-link"  id="setting">
                   <i class="el-icon-s-tools"></i>
                 </span>
-
-                <el-dropdown-menu slot="dropdown" class="test">
+                <el-dropdown-menu slot="dropdown" class="settingList">
                   <router-link to="/userinfo" tag="div">
                     <el-dropdown-item>用户信息</el-dropdown-item>
                   </router-link>
@@ -46,16 +45,9 @@ export default {
   data() {
     return {
       showUser:false,
-       userUrl: localStorage.getItem("userImg")
     };
   },
   methods:{
-      checkUserImg(){
-        if(localStorage.getItem("userImg") == null || localStorage.getItem("userImg") == '' || localStorage.getItem("userImg") == undefined){
-          this.userUrl = require('../assets/logo.png')
-        }else{
-        }
-      },
      exitLogin() {
       localStorage.clear();
       this.$store.state.showUserMessage = false
@@ -66,9 +58,6 @@ export default {
                 });
     }
   },
-  mounted() {
-        this.checkUserImg()
-    },
     computed:{
       showUserMessage(){
         return this.$store.state.showUserMessage
@@ -77,7 +66,11 @@ export default {
         return this.$store.state.userName
       },
       userImgUrl(){
+        if(this.$store.state.userImgUrl != null && this.$store.state.userImgUrl != ''){
         return this.$store.state.userImgUrl
+        }else{
+          return require('../assets/logo.png')
+        }
       }
     }
 
@@ -135,5 +128,11 @@ export default {
   margin-left: 60px;
   font-weight: 600;
   color: rgb(194, 150, 150);
+}
+#setting :hover{
+  color:rgb(105, 58, 58)
+}
+#settingList{
+  margin-top: -30px;
 }
 </style>

@@ -15,9 +15,8 @@
       </el-col>
     </el-row>
     <el-row>
-      <el-col :span="24">
+      <el-col :span="18">
         <el-button v-show="showGoodAddBtn" type="primary" round id="add_btn" @click="addGood()">添加商品</el-button>
-
         <el-button
           v-show="showGoodBtn"
           type="primary"
@@ -25,8 +24,10 @@
           id="add_btn"
           @click="showGoodList()"
         >商品管理</el-button>
-
         <el-button type="primary" round id="add_btn" @click="manageGoodType">管理商品类型</el-button>
+      </el-col>
+      <el-col :span="3" :offset="3">
+        <el-button type="primary" round id="add_btn" @click="mutiDel(tableChecked)">批量删除</el-button>
       </el-col>
     </el-row>
     <!-- 添加商品 -->
@@ -71,13 +72,15 @@
         </el-form-item>
       </el-form>
     </div>
-    <!-- 显示商品table -->
+    <!-- 显示商品列表table -->
     <div v-else-if="type === 'showGoodTable'">
       <el-table
         style="width: 100%;"
         :data="goodList.slice((currentPage-1)*pagesize,currentPage*pagesize)"
         :header-cell-style="{background:'#eef1f6',color:'#606266'}"
+        @selection-change="handleSelectionChange"
       >
+        <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column type="index" width="50" label="序号"></el-table-column>
         <el-table-column label="商品名称" prop="goodname" width="180"></el-table-column>
         <el-table-column label="商品类型" prop="goodtype" width="180"></el-table-column>
@@ -87,7 +90,7 @@
           <template slot-scope="scope">
             <img
               style="width:40px;height:40px;"
-             :src="goodList[scope.$index+(currentPage-1)*10].goodimgurl"
+              :src="goodList[scope.$index+(currentPage-1)*10].goodimgurl"
             />
           </template>
         </el-table-column>
@@ -122,92 +125,32 @@
     </div>
     <!-- 商品类型管理 -->
     <div v-show="goodTypeTable">
-      <el-row :gutter="20">
-        <el-col :span="6">
-          一级标题:
-          <template>
-            <el-select
-              v-model="goodType"
-              :filterable="true"
-              :allow-create="true"
-              :default-first-option="true"
-              placeholder="商品父类型添加"
-            >
-              <el-option v-for="item in typeOptions" :key="item.goodType" :value="item.goodType"></el-option>
-            </el-select>
-          </template>
-        </el-col>
-        <el-col :span="6">
-          二级标题:
-          <template>
-            <el-input placeholder="商品子类型添加" v-model="subType" clearable style="width:220px;"></el-input>
-          </template>
-        </el-col>
-        <el-col :span="2">
-          <el-button type="primary" icon="el-icon-plus" circle @click="addType"></el-button>
-        </el-col>
-      </el-row>
-      <!-- 商品类型table -->
-      <el-table
-        :data="goodTypeList"
-        :span-method="renderTable"
-        border
-        style="width: 54%; margin-top: 20px"
-      >
-        <el-table-column type="index" label="序号" width="50px"></el-table-column>
-        <el-table-column prop="goodType" label="商品父类型" width="200px"></el-table-column>
-        <el-table-column prop="subType" label="商品子类型" width="200px"></el-table-column>
-        <el-table-column label="操作" width="203px">
-          <template slot-scope="scope">
-            <el-button
-              type="primary"
-              icon="el-icon-edit"
-              circle
-              @click="modifyGood(scope.$index+(currentPage-1)*10)"
-            ></el-button>
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              circle
-              @click="deleteMessage(goodList[scope.$index+(currentPage-1)*10].id)"
-            ></el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+           <goodType></goodType>
     </div>
   </div>
 </template>
 
 <script >
+import goodType from "./goodType.vue"
 export default {
+  components:{
+    goodType
+  },
   name: "shoppingContent",
   data() {
     return {
-      goodTypeTable:false,
-      pos:"",//计算行列
-      showGoodAddBtn: true,//显示商品增加按钮
-      showGoodBtn: false,//显示商品管理按钮
+      tableChecked: [], //被选中的记录数据-----对应“批量删除”传的参数值
+      mutiId: [], //批量删除id
+      goodTypeTable: false,
+      showGoodAddBtn: true, //显示商品增加按钮
+      showGoodBtn: false, //显示商品管理按钮
       shoppingTitle: "商品管理",
       type: "", //根据状态选择看见特点组件
-      serchText: "",//搜索内容
-      modifyId: "",//修改的id
+      serchText: "", //搜索内容
+      modifyId: "", //修改的id
       total: 1000,
       token: "dasad",
-      //管理商品类型选择器
-      typeOptions: [
-        {
-          goodType: "衣服"
-        },
-        {
-          goodType: "帽子"
-        },
-        {
-          goodType: "鞋子"
-        }
-      ],
-      goodType: [],
-      SpanArr:[],//获取表格合并行列数
-      subType: "",//商品子类型
+
       goodform: {
         goodname: "",
         goodtype: "",
@@ -216,9 +159,8 @@ export default {
         gooddesc: "",
         goodImgUrl: ""
       },
-      goodTypeList:[],//获取所有商品类型
-      goodList: [],//获取所有商品类型
-      FgoodList: [],//获取所有商品类型
+      goodList: [], //获取所有商品类型
+      FgoodList: [], //获取所有商品类型
       pagesize: 10,
       currentPage: 1,
       //价格规则限制
@@ -255,6 +197,59 @@ export default {
     };
   },
   methods: {
+    //获取批量选择的行
+    handleSelectionChange(val) {
+      this.tableChecked = val;
+    },
+    //批量删除
+    mutiDel(dataList) {
+      if(dataList.length != 0 && dataList != undefined){
+      var that = this;
+      that.$confirm("是否确认此操作?", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        })
+        .then(() => {
+          dataList.forEach(element => {
+            that.mutiId.push(element.id);
+          });
+         this.$axios.post("/goods/mutidelete", {
+          deleteIdList:that.mutiId
+        })
+        .then(response => {
+          if (!response.data.isSuccess) {
+            this.$error({
+              type: "error",
+              message: "删除失败!"
+            });
+            return;
+          } else {
+            this.$message({
+              type: "success",
+              message: "删除成功!"
+            });
+            that.showGoods()
+          }
+        })
+        .catch(function(error) {
+          console.log(that.mutiId)
+          console.log(error);
+        });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消"
+          });
+        });
+      }else{
+        alert("请选择要删除的商品")
+        return
+      }
+      this.dataList = [],
+      this.mutiId = []
+    },
     //上传图片功能
     handleAvatarSuccess(res, file) {
       if (res.isSuccess) {
@@ -284,7 +279,7 @@ export default {
     },
     //切换增加和显示
     addGood() {
-        (this.goodform.goodname = ""),
+      (this.goodform.goodname = ""),
         (this.goodform.goodtype = ""),
         (this.goodform.goodnum = ""),
         (this.goodform.goodprice = ""),
@@ -293,7 +288,7 @@ export default {
         (this.modifyId = ""),
         (this.type = "addOrModify");
       this.shoppingTitle = "添加商品";
-      this.goodTypeTable=false;
+      this.goodTypeTable = false;
     },
     //显示商品管理列表
     showGoodList() {
@@ -301,15 +296,7 @@ export default {
       this.showGoodAddBtn = true;
       this.shoppingTitle = "商品管理";
       this.type = "showGoodTable";
-      this.goodTypeTable=false;
-    },
-    //显示商品类型并计算要合并的行列数
-    showGoodType() {
-        this.$axios.get("/goods/showType").then(res => {
-        this.goodTypeList = res.data.data;
-        this.total = this.goodTypeList.length;
-        this.getRowAndColumn(this.goodTypeList);
-      });
+      this.goodTypeTable = false;
     },
     //显示管理商品类型
     manageGoodType() {
@@ -317,63 +304,7 @@ export default {
       this.showGoodBtn = true;
       this.type = "dd";
       this.shoppingTitle = "商品类型管理";
-      this.goodTypeTable=true;
-    },
-    //添加类型
-    addType() {
-      this.$axios
-        .post("/goods/addType", {
-          subType: this.subType,
-          goodType: this.goodType
-        })
-        .then(response => {
-          if (!response.data.isSuccess) {
-            this.$error({
-                  type: "error",
-                  message: "提交失败!"
-                });
-            return;
-          } else {
-            this.$message({
-                  type: "error",
-                  message: "提交成功!"
-                });
-            this.showGoodType();
-            this.getRowAndColumn(this.goodTypeList);
-          }
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
-    },
-    //计算要合并的行列
-    getRowAndColumn(arr){
-      console.log(1232312+arr)
-        for(var i = 0;i<this.arr.length;i++){
-        if (i === 0){
-          this.SpanArr.push(1);
-          this.pos = 0
-        }else{
-          //判断当前元素与上个元素是否相同
-          if(this.arr[i].goodType == this.arr[i-1].goodType){
-            this.SpanArr[this.pos] += 1;
-            this.SpanArr.push(0);
-          }else{
-            this.SpanArr.push(1);
-            this.pos = i;
-          }
-        }
-      }
-    },
-    //合并行列
-    renderTable({ row, column, rowIndex, columnIndex }) {
-        if(columnIndex === 1){
-          const rows = this.SpanArr[rowIndex];
-        return{
-          rowspan:rows,
-          colspan:1
-        }
-        }
+      this.goodTypeTable = true;
     },
     //提交添加商品
     onSubmit(formName) {
@@ -397,7 +328,7 @@ export default {
                 });
                 return;
               } else {
-                 this.$message({
+                this.$message({
                   type: "success",
                   message: "提交成功!"
                 });
@@ -416,7 +347,7 @@ export default {
     },
     //关闭增加商品
     shutadd() {
-        (this.goodform.goodname = ""),
+      (this.goodform.goodname = ""),
         (this.goodform.goodtype = ""),
         (this.goodform.goodnum = ""),
         (this.goodform.goodprice = ""),
@@ -424,17 +355,19 @@ export default {
         (this.goodform.gooddesc = ""),
         (this.modifyId = ""),
         this.$refs.goodform.resetFields();
-        this.type = "showGoodTable";
+      this.type = "showGoodTable";
     },
     //请求所有商品数据
     showGoods() {
-      this.$axios.get("/goods/show").then(res => {
+      this.$axios.get("/goods/show",).then(res => {
         this.FgoodList = res.data.data;
         this.goodList = res.data.data;
         this.total = this.goodList.length;
+      }).catch(err => {
+        consolt.log(31231231);
       });
     },
-    
+
     //分页函数
     handleSizeChange(val) {
       this.pagesize = val;
@@ -505,9 +438,6 @@ export default {
   created() {
     this.showGoods();
     this.type = "showGoodTable";
-  },
-  mounted(){
-    this.showGoodType();
   }
 };
 </script>

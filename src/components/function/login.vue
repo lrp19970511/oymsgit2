@@ -100,13 +100,16 @@ mounted () {
               })
               .then((response) => {
                 if(response.data.isSuccess){
+                  console.log(response)
                   localStorage.setItem("username",this.ruleForm.name)
                   localStorage.setItem("userImg",response.data.message)
                   localStorage.setItem("islogin",response.data.isSuccess)
+                  localStorage.setItem("token",response.data.token)
                   this.$router.push('/')
                   this.$store.state.showUserMessage = true
                   this.$store.state.userName = localStorage.getItem("username")
                   this.$store.state.userImgUrl = localStorage.getItem("userImg")
+                  this.$store.state.token = localStorage.getItem("token")
                   this.$message({
                   type: "success",
                   message: "登录成功!"
@@ -116,8 +119,12 @@ mounted () {
                   return
                 }
               })
-              .catch(function(error) {
-                console.log(error);
+              .catch(err => {
+                this.$message({
+                  type: "error",
+                  message: "服务器错误，请稍后重新登陆!"
+                });
+                console.log(err);
               });
         } else {
           console.log("error submit!!");
