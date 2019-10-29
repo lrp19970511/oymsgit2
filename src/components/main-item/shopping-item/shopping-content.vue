@@ -359,10 +359,12 @@ export default {
     },
     //请求所有商品数据
     showGoods() {
-      this.$axios.get("/goods/show").then(res => {
+      this.$axios.get("/goods/show",).then(res => {
         this.FgoodList = res.data.data;
         this.goodList = res.data.data;
         this.total = this.goodList.length;
+      }).catch(err => {
+        consolt.log(31231231);
       });
     },
 

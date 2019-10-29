@@ -16,6 +16,11 @@
           <i class="el-icon-s-custom"></i>用户管理
           </router-link>
         </el-menu-item>
+        <el-menu-item >
+          <router-link to="/main/usermanager" tag="div">
+          <i class="el-icon-info"></i>权限管理
+          </router-link>
+        </el-menu-item>
       </el-menu>
   </div>
 </template>

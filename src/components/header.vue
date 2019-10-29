@@ -45,16 +45,9 @@ export default {
   data() {
     return {
       showUser:false,
-       userUrl: localStorage.getItem("userImg")
     };
   },
   methods:{
-      checkUserImg(){
-        if(localStorage.getItem("userImg") == null || localStorage.getItem("userImg") == '' || localStorage.getItem("userImg") == undefined){
-          this.userUrl = require('../assets/logo.png')
-        }else{
-        }
-      },
      exitLogin() {
       localStorage.clear();
       this.$store.state.showUserMessage = false
@@ -65,9 +58,6 @@ export default {
                 });
     }
   },
-  mounted() {
-        this.checkUserImg()
-    },
     computed:{
       showUserMessage(){
         return this.$store.state.showUserMessage
@@ -76,7 +66,11 @@ export default {
         return this.$store.state.userName
       },
       userImgUrl(){
+        if(this.$store.state.userImgUrl != null && this.$store.state.userImgUrl != ''){
         return this.$store.state.userImgUrl
+        }else{
+          return require('../assets/logo.png')
+        }
       }
     }
 
