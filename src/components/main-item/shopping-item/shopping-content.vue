@@ -125,7 +125,7 @@
     </div>
     <!-- 商品类型管理 -->
     <div v-show="goodTypeTable">
-           <goodType></goodType>
+           <goodType ref="goodType" @click="getTypeList"></goodType>
     </div>
   </div>
 </template>
@@ -305,6 +305,7 @@ export default {
       this.type = "dd";
       this.shoppingTitle = "商品类型管理";
       this.goodTypeTable = true;
+      this.getTypeList()
     },
     //提交添加商品
     onSubmit(formName) {
@@ -364,7 +365,6 @@ export default {
         this.goodList = res.data.data;
         this.total = this.goodList.length;
       }).catch(err => {
-        consolt.log(31231231);
       });
     },
 
@@ -424,6 +424,9 @@ export default {
         (this.goodform.gooddesc = this.goodList[index].gooddesc),
         (this.modifyId = this.goodList[index].id),
         (this.type = "addOrModify");
+    },
+    getTypeList(){
+      this.$refs.goodType.showGoodType()
     }
   },
   //监听搜索时间
