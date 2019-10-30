@@ -26,12 +26,21 @@ axios.interceptors.request.use(
   });
   //响应拦截器
   axios.interceptors.response.use((res) => {
-    // token 已过期，重定向到登录页面
-    return res
-  }, function(err) {
+  return res
+  }, err => {
     if(err.response.status == 600){
+      console.log(err.response)
+      router.replace({
+        path: '/NoToken',
+        query: {redirect: router.currentRoute.fullPath}
+    })
     }
-    console.log(err.response)
+    if(err.response.status == 601){
+      router.replace({
+        path: '/OverDueToken',
+        query: {redirect: router.currentRoute.fullPath}
+    })
+    }
     return Promise.reject(err) 
   })
 new Vue({

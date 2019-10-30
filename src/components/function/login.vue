@@ -100,7 +100,6 @@ mounted () {
               })
               .then((response) => {
                 if(response.data.isSuccess){
-                  console.log(response)
                   localStorage.setItem("username",this.ruleForm.name)
                   localStorage.setItem("userImg",response.data.message)
                   localStorage.setItem("islogin",response.data.isSuccess)

@@ -125,7 +125,7 @@
     </div>
     <!-- 商品类型管理 -->
     <div v-show="goodTypeTable">
-           <goodType></goodType>
+           <goodType ref="goodType" @click="getTypeList"></goodType>
     </div>
   </div>
 </template>
@@ -148,7 +148,7 @@ export default {
       type: "", //根据状态选择看见特点组件
       serchText: "", //搜索内容
       modifyId: "", //修改的id
-      total: 1000,
+      
       token: "dasad",
 
       goodform: {
@@ -162,6 +162,7 @@ export default {
       goodList: [], //获取所有商品类型
       FgoodList: [], //获取所有商品类型
       pagesize: 10,
+      total: 1000,
       currentPage: 1,
       //价格规则限制
       priceRule: [
@@ -305,6 +306,7 @@ export default {
       this.type = "dd";
       this.shoppingTitle = "商品类型管理";
       this.goodTypeTable = true;
+      this.getTypeList()
     },
     //提交添加商品
     onSubmit(formName) {
@@ -364,7 +366,6 @@ export default {
         this.goodList = res.data.data;
         this.total = this.goodList.length;
       }).catch(err => {
-        consolt.log(31231231);
       });
     },
 
@@ -424,6 +425,9 @@ export default {
         (this.goodform.gooddesc = this.goodList[index].gooddesc),
         (this.modifyId = this.goodList[index].id),
         (this.type = "addOrModify");
+    },
+    getTypeList(){
+      this.$refs.goodType.showGoodType()
     }
   },
   //监听搜索时间
