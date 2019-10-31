@@ -93,15 +93,16 @@ export default {
       return isJPG && isLt2M;
     },
     submitForm(formName) {
+      var that = this
       if (this.ruleForm.password == this.ruleForm.isPassword) {
         this.$refs[formName].validate(valid => {
           if (valid) {
+            var params = new URLSearchParams()
+            params.append('username',this.ruleForm.name)
+            params.append('userpassword',this.ruleForm.password)
+            params.append('userimg',this.ruleForm.imageUrl)
             this.$axios
-              .post("/user/register", {
-                userName: this.ruleForm.name,
-                userPassword: this.ruleForm.password,
-                userImageUrl: this.ruleForm.imageUrl
-              })
+              .post("/user/register",params)
               .then((response) => {
                 if(!response.data.isSuccess){
                   alert("用户名已存在")

@@ -131,7 +131,9 @@
 </template>
 
 <script >
+import {checkRoleId} from '../../../utils/checkRoleId.js'
 import goodType from "./goodType.vue"
+import { equal } from 'assert';
 export default {
   components:{
     goodType
@@ -148,7 +150,7 @@ export default {
       type: "", //根据状态选择看见特点组件
       serchText: "", //搜索内容
       modifyId: "", //修改的id
-      total: 1000,
+      
       token: "dasad",
 
       goodform: {
@@ -162,6 +164,7 @@ export default {
       goodList: [], //获取所有商品类型
       FgoodList: [], //获取所有商品类型
       pagesize: 10,
+      total: 1000,
       currentPage: 1,
       //价格规则限制
       priceRule: [
@@ -279,7 +282,8 @@ export default {
     },
     //切换增加和显示
     addGood() {
-      (this.goodform.goodname = ""),
+        console.log(checkRoleId(this.$store.state.token)),
+        (this.goodform.goodname = ""),
         (this.goodform.goodtype = ""),
         (this.goodform.goodnum = ""),
         (this.goodform.goodprice = ""),
@@ -309,18 +313,19 @@ export default {
     },
     //提交添加商品
     onSubmit(formName) {
+      const that = this
       this.$refs[formName].validate(valid => {
         if (valid) {
+          var params = new URLSearchParams()
+          params.append('goodname',this.goodform.goodname)
+          params.append('goodtype',this.goodform.goodtype)
+          params.append('goodprice',this.goodform.goodprice)
+          params.append('goodnum',this.goodform.goodnum)
+          params.append('gooddesc',this.goodform.gooddesc)
+          params.append('goodimgurl',this.goodform.goodImgUrl)
+          params.append('modifyId',this.modifyId)
           this.$axios
-            .post("/goods/add", {
-              goodName: this.goodform.goodname,
-              goodtype: this.goodform.goodtype,
-              goodprice: this.goodform.goodprice,
-              goodnum: this.goodform.goodnum,
-              gooddesc: this.goodform.gooddesc,
-              goodImgUrl: this.goodform.goodImgUrl,
-              modifyId: this.modifyId
-            })
+            .post("/goods/add", params)
             .then(response => {
               if (!response.data.isSuccess) {
                 this.$message({
@@ -377,6 +382,7 @@ export default {
     },
     //删除信息
     deleteMessage(id) {
+      const that = this
       this.$confirm("此操作将删除该商品, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -386,7 +392,7 @@ export default {
           this.$axios
             .get("/goods/isdelete", {
               params: {
-                goodId: id
+                id: id
               }
             })
             .then(response => {
