@@ -1,63 +1,91 @@
 <template>
   <div id="goodType">
-    <el-row style="width:100%">
-      <el-col :span="7">
-        一级标题:
-        <template>
-          <el-select
-            v-model="parentType"
-            :filterable="true"
-            :allow-create="true"
-            :default-first-option="true"
-            placeholder="商品父类型添加"
-          >
-            <el-option v-for="item in typeOptions" :key="item" :value="item"></el-option>
-          </el-select>
-        </template>
+    <!-- 商品类型table -->
+    <el-row style="width:100%" :gutter="30">
+      <el-col :span="14" >
+        <h2 class="table_title">子类型管理</h2>
+        <el-row style="width:100%;margin-top: 10px;">
+          <el-col :span="22" style="">
+            <label class="add_title">商品子类型添加：</label>
+            <template>
+              <el-select
+                v-model="parentType"
+                filterable 
+                placeholder="选择父类型"
+                style="width:30%; margin-right:5px"
+              >
+                <el-option v-for="item in typeOptions" :key="item.id" :value="item.pname"></el-option>
+              </el-select>
+            </template>
+            <template>
+              <el-input placeholder="商品子类型添加" v-model="goodType" clearable style="width:220px;"></el-input>
+            </template>
+          </el-col>
+          <el-button type="primary" icon="el-icon-plus" circle @click="addType"></el-button>
+        </el-row>
+        <el-table
+          :data="goodTypeList.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+          :span-method="renderTable"
+          border
+          style="width: 100%;margin-top: 10px;"
+        >
+          <el-table-column type="selection" min-width="12%"></el-table-column>
+          <el-table-column type="index" label="序号" min-width="12%"></el-table-column>
+          <el-table-column prop="pname" label="商品父类型" min-width="30%"></el-table-column>
+          <el-table-column prop="cname" label="商品子类型" min-width="30%"></el-table-column>
+          <el-table-column label="操作" min-width="25%">
+            <template slot-scope="scope">
+              <el-button type="primary" icon="el-icon-edit" circle></el-button>
+              <el-button
+                type="danger"
+                icon="el-icon-delete"
+                circle
+                @click="deleteGoodType(goodTypeList[scope.$index+(currentPage-1)*10].id)"
+              ></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <!-- 分页控制 -->
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page.sync="currentPage"
+          :page-sizes="[10, 20, 30, 40]"
+          :page-size="pagesize"
+          layout="sizes, prev, pager, next"
+          :total="total"
+        ></el-pagination>
       </el-col>
-      <el-col :span="7">
-        二级标题:
-        <template>
-          <el-input placeholder="商品子类型添加" v-model="goodType" clearable style="width:220px;"></el-input>
-        </template>
-      </el-col>
-      <el-col :span="2">
-        <el-button type="primary" icon="el-icon-plus" circle @click="addType"></el-button>
+
+      <el-col :span="10">
+        <h2 class="table_title">父类型管理</h2>
+        <el-row style="width:100%;margin-top: 10px;">
+          <el-col :span="21" style="">
+            <label class="add_title">商品父类型添加：</label>
+            <template>
+              <el-input placeholder="商品父类型添加" v-model="goodType" clearable style="width:220px;"></el-input>
+            </template>
+          </el-col>
+          <el-button type="primary" icon="el-icon-plus" circle @click="addType"></el-button>
+        </el-row>
+        <el-table :data="typeOptions" border style="width: 100%; margin-top: 10px;" max-height="722px">
+          <el-table-column type="selection" min-width="12%"></el-table-column>
+          <el-table-column type="index" label="序号" min-width="12%"></el-table-column>
+          <el-table-column prop="pname" label="商品父类型" min-width="30%"></el-table-column>
+          <el-table-column label="操作" min-width="25%">
+            <template slot-scope="scope">
+              <el-button type="primary" icon="el-icon-edit" circle></el-button>
+              <el-button
+                type="danger"
+                icon="el-icon-delete"
+                circle
+                @click="deleteGoodType(goodTypeList[scope.$index+(currentPage-1)*10].id)"
+              ></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </el-col>
     </el-row>
-    <!-- 商品类型table -->
-    <el-table
-      :data="goodTypeList.slice((currentPage-1)*pagesize,currentPage*pagesize)"
-      :span-method="renderTable"
-      border
-      style="width: 58%; margin-top: 20px"
-    >
-      <el-table-column type="selection" min-width="12%"></el-table-column>
-      <el-table-column type="index" label="序号" min-width="12%"></el-table-column>
-      <el-table-column prop="pname" label="商品父类型" min-width="30%"></el-table-column>
-      <el-table-column prop="cname" label="商品子类型" min-width="30%"></el-table-column>
-      <el-table-column label="操作" width="203px">
-        <template slot-scope="scope">
-          <el-button type="primary" icon="el-icon-edit" circle></el-button>
-          <el-button
-            type="danger"
-            icon="el-icon-delete"
-            circle
-            @click="deleteGoodType(goodTypeList[scope.$index+(currentPage-1)*10].id)"
-          ></el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <!-- 分页控制 -->
-    <el-pagination
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page.sync="currentPage"
-      :page-sizes="[10, 20, 30, 40]"
-      :page-size="pagesize"
-      layout="sizes, prev, pager, next"
-      :total="total"
-    ></el-pagination>
   </div>
 </template>
 <script>
@@ -70,6 +98,7 @@ export default {
       serchText: "", //搜索内容
       //管理商品类型选择器
       typeOptions: [],
+      typeOptionsCope:[],
       parentType: [],
       SpanArr: [], //获取表格合并行列数
       goodType: "", //商品子类型
@@ -81,8 +110,22 @@ export default {
   },
 
   methods: {
+    parentTypeFilter(val){
+      this.value = val;
+        if (val) { //val存在
+          this.typeOptions = this.typeOptionsCope.filter((item) => {
+            if (!!~item.pname.indexOf(val) || !!~item.pname.toUpperCase().indexOf(val.toUpperCase())) {
+              return true
+            }
+          })
+        } else { //val为空时，还原数组
+          this.typeOptions = this.typeOptionsCope;
+        }
+      
+    },
     //添加商品类型
     addType() {
+      const that = this;
       if (
         this.parentType != null &&
         this.parentType != "" &&
@@ -94,11 +137,11 @@ export default {
             return;
           }
         }
+        var params = new URLSearchParams();
+        params.append("cname", this.goodType);
+        params.append("pname", this.parentType);
         this.$axios
-          .post("/goods/addType", {
-            goodType: this.goodType,
-            parentType: this.parentType
-          })
+          .post("/goods/addType", params)
           .then(response => {
             if (!response.data.isSuccess) {
               this.$error({
@@ -126,7 +169,7 @@ export default {
       this.SpanArr = [];
       // for(var j = 0; j < arr.length; j++){
       for (var i = 0; i < arr.length; i++) {
-        if (i === 0 ) {
+        if (i === 0) {
           this.SpanArr.push(1);
           this.pos = 0;
         } else {
@@ -139,7 +182,7 @@ export default {
               this.SpanArr.push(1);
               this.pos = i;
             }
-          }else{
+          } else {
             this.SpanArr.push(1);
             this.pos = i;
           }
@@ -152,7 +195,6 @@ export default {
     renderTable({ row, column, rowIndex, columnIndex }) {
       if (columnIndex === 2) {
         const rows = this.SpanArr[rowIndex + (this.currentPage - 1) * 10];
-        console.log(rows);
         return {
           rowspan: rows,
           colspan: 1
@@ -169,21 +211,11 @@ export default {
     //显示商品类型并计算要合并的行列数
     showGoodType() {
       this.$axios.get("/goods/showType").then(res => {
+        console.log(res);
         this.goodTypeList = res.data.data;
         this.total = this.goodTypeList.length;
         this.getRowAndColumn(this.goodTypeList);
-
-        //计算去重后的夫类型
-        //数组去重方法
-        let a = [];
-        for (let value of this.goodTypeList) {
-          a.push(value.pname);
-        }
-        for (var i = 0; i < a.length; i++) {
-          if (this.typeOptions.indexOf(a[i]) === -1) {
-            this.typeOptions.push(a[i]);
-          }
-        }
+        this.typeOptions = res.data.data2;
       });
     },
     //删除子类型
@@ -230,4 +262,13 @@ export default {
 </script>
 
 <style>
+.add_title{
+  font-size: 14px;
+  color: #282c34;
+}
+.table_title {
+  margin-top: 20px;
+  font: 2em sans-serif;
+  color: #282c34;
+}
 </style>

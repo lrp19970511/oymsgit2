@@ -93,11 +93,11 @@ mounted () {
       var that = this;
       this.$refs[formName].validate(valid => {
         if (valid) {
+          var params = new URLSearchParams()
+          params.append('username',this.ruleForm.name)
+          params.append('userpassword',this.ruleForm.password)
           this.$axios
-              .post("/user/login", {
-                userName: this.ruleForm.name,
-                userPassword: this.ruleForm.password
-              })
+              .post("/user/login", params)
               .then((response) => {
                 if(response.data.isSuccess){
                   localStorage.setItem("username",this.ruleForm.name)

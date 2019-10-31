@@ -16,8 +16,7 @@ const store = new Vuex.Store({
          //改变登录状态方法
          changeLoginState(state){
             state.showUserMessage=!state.showUserMessage
-         },
-         //登陆后获取用户信息
+         }
       },
       actions:{
 
