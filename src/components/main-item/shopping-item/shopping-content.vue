@@ -131,7 +131,7 @@
 </template>
 
 <script >
-import {checkRoleId} from '../../../utils/checkRoleId.js'
+import {checkRoleId,isAdmin} from '../../../utils/checkRoleId.js'
 import goodType from "./goodType.vue"
 import { equal } from 'assert';
 export default {
@@ -200,12 +200,23 @@ export default {
     };
   },
   methods: {
+    //检查权限
+    checkAdmin(){
+       if(isAdmin != 700 && isAdmin != 701){
+          this.$message({
+                  type: "error",
+                  message: "你没有权限进行此操作!"
+             });
+          throw SyntaxError(); 
+        }
+    },
     //获取批量选择的行
     handleSelectionChange(val) {
       this.tableChecked = val;
     },
     //批量删除
     mutiDel(dataList) {
+      this.checkAdmin()
       if(dataList.length != 0 && dataList != undefined){
       var that = this;
       that.$confirm("是否确认此操作?", "提示", {
@@ -282,7 +293,7 @@ export default {
     },
     //切换增加和显示
     addGood() {
-        console.log(checkRoleId(this.$store.state.token)),
+        this.checkAdmin(),
         (this.goodform.goodname = ""),
         (this.goodform.goodtype = ""),
         (this.goodform.goodnum = ""),
@@ -304,6 +315,7 @@ export default {
     },
     //显示管理商品类型
     manageGoodType() {
+      this.checkAdmin()
       this.showGoodAddBtn = false;
       this.showGoodBtn = true;
       this.type = "dd";
@@ -353,7 +365,7 @@ export default {
     },
     //关闭增加商品
     shutadd() {
-      (this.goodform.goodname = ""),
+        (this.goodform.goodname = ""),
         (this.goodform.goodtype = ""),
         (this.goodform.goodnum = ""),
         (this.goodform.goodprice = ""),
@@ -382,6 +394,7 @@ export default {
     },
     //删除信息
     deleteMessage(id) {
+      this.checkAdmin()
       const that = this
       this.$confirm("此操作将删除该商品, 是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -422,7 +435,8 @@ export default {
     },
     //显示修改商品
     modifyGood(index) {
-      (this.goodform.goodname = this.goodList[index].goodname),
+      this.checkAdmin(),
+        (this.goodform.goodname = this.goodList[index].goodname),
         (this.goodform.goodtype = this.goodList[index].goodtype),
         (this.goodform.goodnum = this.goodList[index].goodnum),
         (this.goodform.goodprice = this.goodList[index].goodprice),
@@ -445,6 +459,7 @@ export default {
     }
   },
   created() {
+    checkRoleId()
     this.showGoods();
     this.type = "showGoodTable";
   }
