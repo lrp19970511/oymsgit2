@@ -99,6 +99,7 @@ mounted () {
           this.$axios
               .post("/user/login", params)
               .then((response) => {
+                console.log(response)
                 if(response.data.isSuccess){
                   localStorage.setItem("username",this.ruleForm.name)
                   localStorage.setItem("userImg",response.data.message)

@@ -7,7 +7,7 @@
       <el-col :span="5" :offset="7" id="search">
         <el-input
           v-model="serchText"
-          placeholder="请输入要搜索的商品名称"
+          :placeholder="defauleText"
           id="searchContent"
           type="text"
           prefix-icon="el-icon-search"
@@ -80,13 +80,13 @@
         :header-cell-style="{background:'#eef1f6',color:'#606266'}"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column type="index" width="50" label="序号"></el-table-column>
-        <el-table-column label="商品名称" prop="goodname" width="180"></el-table-column>
-        <el-table-column label="商品类型" prop="goodtype" width="180"></el-table-column>
-        <el-table-column label="商品价格" prop="goodprice" width="130"></el-table-column>
-        <el-table-column label="商品数量" prop="goodnum" width="120"></el-table-column>
-        <el-table-column label="商品图片" width="100">
+        <el-table-column type="selection"  min-width="4.5%"></el-table-column>
+        <el-table-column type="index" width="50" min-width="4.5%"></el-table-column>
+        <el-table-column label="商品名称" prop="goodname" min-width="16%"></el-table-column>
+        <el-table-column label="商品类型" prop="goodtype" min-width="16%"></el-table-column>
+        <el-table-column label="商品价格" prop="goodprice" min-width="9%"></el-table-column>
+        <el-table-column label="商品数量" prop="goodnum" min-width="9%"></el-table-column>
+        <el-table-column label="商品图片" min-width="9%">
           <template slot-scope="scope">
             <img
               style="width:40px;height:40px;"
@@ -94,8 +94,8 @@
             />
           </template>
         </el-table-column>
-        <el-table-column label="商品描述" prop="gooddesc" width="200"></el-table-column>
-        <el-table-column label="操作" width="200">
+        <el-table-column label="商品描述" prop="gooddesc" min-width="16%"></el-table-column>
+        <el-table-column label="操作" min-width="16%">
           <template slot-scope="scope">
             <el-button
               type="primary"
@@ -125,17 +125,17 @@
     </div>
     <!-- 商品类型管理 -->
     <div v-show="goodTypeTable">
-           <goodType ref="goodType" @click="getTypeList"></goodType>
+      <goodType ref="goodType" @click="getTypeList"></goodType>
     </div>
   </div>
 </template>
 
 <script >
-import {checkRoleId} from '../../../utils/checkRoleId.js'
-import goodType from "./goodType.vue"
-import { equal } from 'assert';
+import { checkRoleId, isAdmin } from "../../../utils/checkRoleId.js";
+import goodType from "./goodType.vue";
+import { equal } from "assert";
 export default {
-  components:{
+  components: {
     goodType
   },
   name: "shoppingContent",
@@ -149,8 +149,9 @@ export default {
       shoppingTitle: "商品管理",
       type: "", //根据状态选择看见特点组件
       serchText: "", //搜索内容
+      defauleText: "请输入商品名字",
       modifyId: "", //修改的id
-      
+
       token: "dasad",
 
       goodform: {
@@ -200,58 +201,115 @@ export default {
     };
   },
   methods: {
+    //检查权限
+    checkAdmin() {
+      if (isAdmin != 700 && isAdmin != 701) {
+        this.$message({
+          type: "error",
+          message: "你没有权限进行此操作!"
+        });
+        throw SyntaxError();
+      }
+    },
     //获取批量选择的行
     handleSelectionChange(val) {
       this.tableChecked = val;
     },
     //批量删除
     mutiDel(dataList) {
-      if(dataList.length != 0 && dataList != undefined){
-      var that = this;
-      that.$confirm("是否确认此操作?", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-        .then(() => {
-          dataList.forEach(element => {
-            that.mutiId.push(element.id);
-          });
-         this.$axios.post("/goods/mutidelete", {
-          deleteIdList:that.mutiId
-        })
-        .then(response => {
-          if (!response.data.isSuccess) {
-            this.$error({
-              type: "error",
-              message: "删除失败!"
+      this.checkAdmin();
+      var dataList2 = this.$refs.goodType.tableChecked2;
+      //批量删除商品列表
+      if (dataList.length != 0 && dataList != undefined) {
+        var that = this;
+        that
+          .$confirm("是否确认此操作?", "提示", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          })
+          .then(() => {
+            dataList.forEach(element => {
+              that.mutiId.push(element.id);
             });
-            return;
-          } else {
+            var params = new URLSearchParams();
+            params.append("deleteIdList", that.mutiId);
+            this.$axios
+              .post("/goods/mutidelete", params)
+              .then(response => {
+                if (!response.data.isSuccess) {
+                  this.$error({
+                    type: "error",
+                    message: "删除失败!"
+                  });
+                  return;
+                } else {
+                  this.$message({
+                    type: "success",
+                    message: "删除成功!"
+                  });
+                  that.showGoods();
+                }
+              })
+              .catch(function(error) {
+                console.log(that.mutiId);
+                console.log(error);
+              });
+          })
+          .catch(() => {
             this.$message({
-              type: "success",
-              message: "删除成功!"
+              type: "info",
+              message: "已取消"
             });
-            that.showGoods()
-          }
-        })
-        .catch(function(error) {
-          console.log(that.mutiId)
-          console.log(error);
-        });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消"
           });
-        });
-      }else{
-        alert("请选择要删除的商品")
-        return
+      } else if (dataList2.length != 0 && dataList2 != undefined) {
+        //批量删除子类型列表
+        var that = this;
+        that
+          .$confirm("是否确认此操作?", "提示", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          })
+          .then(() => {
+            dataList2.forEach(element => {
+              that.mutiId.push(element.id);
+            });
+            var params = new URLSearchParams();
+            params.append("deleteGoodTypeIdList", this.mutiId);
+            this.$axios
+              .post("/goods/mutidelgoodtype", params)
+              .then(response => {
+                if (!response.data.isSuccess) {
+                  this.$error({
+                    type: "error",
+                    message: "删除失败!"
+                  });
+                  return;
+                } else {
+                  this.$message({
+                    type: "success",
+                    message: "删除成功!"
+                  });
+                  this.$refs.goodType.showGoodType();
+                }
+              })
+              .catch(function(error) {
+                console.log(that.mutiId);
+                console.log(error);
+              });
+          })
+          .catch(() => {
+            this.$message({
+              type: "info",
+              message: "已取消"
+            });
+          });
+      } else {
+        alert("请选择要删除的商品");
+        return;
       }
-      this.dataList = [],
-      this.mutiId = []
+      (this.dataList = []), (this.mutiId = []), (this.tableChecked = []);
     },
     //上传图片功能
     handleAvatarSuccess(res, file) {
@@ -282,7 +340,7 @@ export default {
     },
     //切换增加和显示
     addGood() {
-        console.log(checkRoleId(this.$store.state.token)),
+      this.checkAdmin(),
         (this.goodform.goodname = ""),
         (this.goodform.goodtype = ""),
         (this.goodform.goodnum = ""),
@@ -301,6 +359,10 @@ export default {
       this.shoppingTitle = "商品管理";
       this.type = "showGoodTable";
       this.goodTypeTable = false;
+      this.tableChecked = [];
+      this.$refs.goodType.tableChecked2 = [];
+      this.serchText = "";
+      this.defauleText = "请输入商品名字";
     },
     //显示管理商品类型
     manageGoodType() {
@@ -309,21 +371,25 @@ export default {
       this.type = "dd";
       this.shoppingTitle = "商品类型管理";
       this.goodTypeTable = true;
-      this.getTypeList()
+      this.getTypeList();
+      this.tableChecked = [];
+      this.serchText = "";
+      this.defauleText = "请输入商品子类型名字";
+      this.showGoods()
     },
     //提交添加商品
     onSubmit(formName) {
-      const that = this
+      const that = this;
       this.$refs[formName].validate(valid => {
         if (valid) {
-          var params = new URLSearchParams()
-          params.append('goodname',this.goodform.goodname)
-          params.append('goodtype',this.goodform.goodtype)
-          params.append('goodprice',this.goodform.goodprice)
-          params.append('goodnum',this.goodform.goodnum)
-          params.append('gooddesc',this.goodform.gooddesc)
-          params.append('goodimgurl',this.goodform.goodImgUrl)
-          params.append('modifyId',this.modifyId)
+          var params = new URLSearchParams();
+          params.append("goodname", this.goodform.goodname);
+          params.append("goodtype", this.goodform.goodtype);
+          params.append("goodprice", this.goodform.goodprice);
+          params.append("goodnum", this.goodform.goodnum);
+          params.append("gooddesc", this.goodform.gooddesc);
+          params.append("goodimgurl", this.goodform.goodImgUrl);
+          params.append("modifyId", this.modifyId);
           this.$axios
             .post("/goods/add", params)
             .then(response => {
@@ -350,6 +416,7 @@ export default {
           return false;
         }
       });
+      this.tableChecked = [];
     },
     //关闭增加商品
     shutadd() {
@@ -365,12 +432,15 @@ export default {
     },
     //请求所有商品数据
     showGoods() {
-      this.$axios.get("/goods/show",).then(res => {
-        this.FgoodList = res.data.data;
-        this.goodList = res.data.data;
-        this.total = this.goodList.length;
-      }).catch(err => {
-      });
+      this.$axios
+        .get("/goods/show")
+        .then(res => {
+          this.FgoodList = res.data.data;
+          this.goodList = res.data.data;
+          this.total = this.goodList.length;
+        })
+        .catch(err => {});
+      this.tableChecked = [];
     },
 
     //分页函数
@@ -382,7 +452,8 @@ export default {
     },
     //删除信息
     deleteMessage(id) {
-      const that = this
+      this.checkAdmin();
+      const that = this;
       this.$confirm("此操作将删除该商品, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -422,7 +493,8 @@ export default {
     },
     //显示修改商品
     modifyGood(index) {
-      (this.goodform.goodname = this.goodList[index].goodname),
+      this.checkAdmin(),
+        (this.goodform.goodname = this.goodList[index].goodname),
         (this.goodform.goodtype = this.goodList[index].goodtype),
         (this.goodform.goodnum = this.goodList[index].goodnum),
         (this.goodform.goodprice = this.goodList[index].goodprice),
@@ -431,20 +503,33 @@ export default {
         (this.modifyId = this.goodList[index].id),
         (this.type = "addOrModify");
     },
-    getTypeList(){
-      this.$refs.goodType.showGoodType()
+    getTypeList() {
+      this.$refs.goodType.showGoodType();
     }
   },
   //监听搜索时间
   watch: {
     serchText(val) {
-      this.goodList = this.FgoodList;
-      this.goodList = this.goodList.filter(
-        value => value.goodname.indexOf(this.serchText) !== -1
-      );
+      if (this.goodTypeTable) {
+        //类型搜索
+        this.$refs.goodType.goodTypeList = this.$refs.goodType.FgoodTypeList;
+        this.$refs.goodType.goodTypeList = this.$refs.goodType.goodTypeList.filter(
+          value => value.cname.indexOf(this.serchText) !== -1
+        )
+        this.$refs.goodType.total = this.$refs.goodType.goodTypeList.length;
+      } else {
+        //商品搜索
+        this.goodList = this.FgoodList;
+        this.goodList = this.goodList.filter(
+          value => value.goodname.indexOf(this.serchText) !== -1
+        );
+        
+          this.total = this.goodList.length;
+      }
     }
   },
   created() {
+    checkRoleId();
     this.showGoods();
     this.type = "showGoodTable";
   }

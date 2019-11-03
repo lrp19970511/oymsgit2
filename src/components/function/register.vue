@@ -108,7 +108,7 @@ export default {
                   alert("用户名已存在")
                   return
                 }else{
-                  alert("注册成功")
+                  alert("用户待审核，请稍后登陆")
                   this.$router.go(-1);
                 }
               })

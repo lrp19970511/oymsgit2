@@ -10,7 +10,7 @@ const store = new Vuex.Store({
          token:localStorage.getItem("token"),
          showUserMessage:localStorage.getItem("islogin"),
          userName:localStorage.getItem("username"),
-         userImgUrl:localStorage.getItem("userImg")
+         userImgUrl:localStorage.getItem("userImg"),
       },
       mutations:{
          //改变登录状态方法

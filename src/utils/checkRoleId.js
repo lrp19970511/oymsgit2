@@ -1,16 +1,24 @@
 import axios from 'axios'
-async function checkRoleId(token) {
-    let result;
-    await axios.get("/user/getRoleId", {
+import Vue from 'vue';
+import Vuex from 'vuex';
+Vue.use(Vuex);
+import store from '../store/index';
+let isAdmin = ""
+function checkRoleId() {
+    return new Promise((resolve, reject) => {
+    axios.get("/user/getRoleId", {
         params: {
-            token: token
+            token: store.state.token
         }
-    }).then(response => {
-        result=response.data.isSuccess
-    }
-    )
-    return result
+    }).then((res) => {
+        isAdmin=res.data.code
+        resolve(res)
+      }).catch((err) => {
+        reject(err)
+      })
+    })
 }
 export {
     checkRoleId,
+    isAdmin
 }

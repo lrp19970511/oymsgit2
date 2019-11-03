@@ -2,15 +2,17 @@
   <div id="goodType">
     <!-- 商品类型table -->
     <el-row style="width:100%" :gutter="30">
-      <el-col :span="14" >
+      <!-- 商品子类型管理 -->
+      <el-col :span="14">
         <h2 class="table_title">子类型管理</h2>
+        <!-- 子类型添加 -->
         <el-row style="width:100%;margin-top: 10px;">
-          <el-col :span="22" style="">
+          <el-col :span="22" style>
             <label class="add_title">商品子类型添加：</label>
             <template>
               <el-select
                 v-model="parentType"
-                filterable 
+                filterable
                 placeholder="选择父类型"
                 style="width:30%; margin-right:5px"
               >
@@ -23,24 +25,61 @@
           </el-col>
           <el-button type="primary" icon="el-icon-plus" circle @click="addType"></el-button>
         </el-row>
+        <!-- 展示子类型table -->
         <el-table
           :data="goodTypeList.slice((currentPage-1)*pagesize,currentPage*pagesize)"
           :span-method="renderTable"
           border
           style="width: 100%;margin-top: 10px;"
+          @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" min-width="12%"></el-table-column>
           <el-table-column type="index" label="序号" min-width="12%"></el-table-column>
           <el-table-column prop="pname" label="商品父类型" min-width="30%"></el-table-column>
-          <el-table-column prop="cname" label="商品子类型" min-width="30%"></el-table-column>
+          <el-table-column prop="cname" label="商品子类型" min-width="30%">
+            <template slot-scope="{row,$index}">
+              <el-input v-model="row.cname" v-show="showEdit[$index]" placeholder="请输入内容"></el-input>
+              <span v-show="!showEdit[$index]">{{row.cname}}</span>
+            </template>
+          </el-table-column>
+          <!-- 操作 -->
           <el-table-column label="操作" min-width="25%">
-            <template slot-scope="scope">
-              <el-button type="primary" icon="el-icon-edit" circle></el-button>
+            <template slot-scope="{row,$index}">
+              <!-- 修改 -->
               <el-button
+                size="medium"
+                @click="handleUpdate(row,$index)"
+                v-show="showEdit[$index]"
+                type="success"
+                icon="el-icon-check"
+                circle
+              ></el-button>
+              <!-- 取消 -->
+              <el-button
+                type="danger"
+                size="medium"
+                icon="el-icon-close"
+                circle
+                @click="cancelEdit($index,row)"
+                v-show="showEdit[$index]"
+              ></el-button>
+              <!-- 编辑 -->
+              <el-button
+                type="primary"
+                size="medium"
+                @click="handleEdit($index, row)"
+                icon="el-icon-edit"
+                circle
+                v-if="!showEdit[$index]"
+              ></el-button>
+              <!-- 删除 -->
+              <el-button
+                size="medium"
                 type="danger"
                 icon="el-icon-delete"
                 circle
-                @click="deleteGoodType(goodTypeList[scope.$index+(currentPage-1)*10].id)"
+                @click="deleteGoodType(row.id)"
+                v-if="!showEdit[$index]"
               ></el-button>
             </template>
           </el-table-column>
@@ -57,29 +96,76 @@
         ></el-pagination>
       </el-col>
 
+      <!-- 展示商品父类型 -->
       <el-col :span="10">
         <h2 class="table_title">父类型管理</h2>
+        <!-- 父类型添加 -->
         <el-row style="width:100%;margin-top: 10px;">
-          <el-col :span="21" style="">
+          <el-col :span="21" style>
             <label class="add_title">商品父类型添加：</label>
             <template>
-              <el-input placeholder="商品父类型添加" v-model="goodType" clearable style="width:220px;"></el-input>
+              <el-input
+                placeholder="商品父类型添加"
+                v-model="parentTypeVal"
+                clearable
+                style="width:220px;"
+              ></el-input>
             </template>
           </el-col>
-          <el-button type="primary" icon="el-icon-plus" circle @click="addType"></el-button>
+          <el-button type="primary" icon="el-icon-plus" circle @click="addParentType"></el-button>
         </el-row>
-        <el-table :data="typeOptions" border style="width: 100%; margin-top: 10px;" max-height="722px">
-          <el-table-column type="selection" min-width="12%"></el-table-column>
+        <!-- 展示父类型列表 -->
+        <el-table
+          :data="typeOptions"
+          border
+          style="width: 100%; margin-top: 10px;"
+          max-height="681px"
+          id="parentTable"
+        >
           <el-table-column type="index" label="序号" min-width="12%"></el-table-column>
-          <el-table-column prop="pname" label="商品父类型" min-width="30%"></el-table-column>
+          <el-table-column prop="pname" label="商品父类型" min-width="30%">
+            <template slot-scope="{row,$index}">
+              <el-input v-model="row.pname" v-show="showParentEdit[$index]" placeholder="请输入内容"></el-input>
+              <span v-show="!showParentEdit[$index]">{{row.pname}}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" min-width="25%">
-            <template slot-scope="scope">
-              <el-button type="primary" icon="el-icon-edit" circle></el-button>
+            <template slot-scope="{row,$index}">
+              <!-- 修改 -->
               <el-button
+                size="medium"
+                @click="handleUpdate2(row,$index)"
+                v-show="showParentEdit[$index]"
+                type="success"
+                icon="el-icon-check"
+                circle
+              ></el-button>
+              <!-- 取消 -->
+              <el-button
+                type="danger"
+                size="medium"
+                icon="el-icon-close"
+                circle
+                @click="cancelEdit2($index,row)"
+                v-show="showParentEdit[$index]"
+              ></el-button>
+              <!-- 编辑 -->
+              <el-button
+                type="primary"
+                size="medium"
+                @click="parentEdit($index, row)"
+                icon="el-icon-edit"
+                circle
+                v-if="!showParentEdit[$index]"
+              ></el-button>
+              <!-- 删除 -->
+              <el-button
+                size="medium"
                 type="danger"
                 icon="el-icon-delete"
                 circle
-                @click="deleteGoodType(goodTypeList[scope.$index+(currentPage-1)*10].id)"
+                @click="deletePatrentGoodType(row.id)"
+                v-if="!showParentEdit[$index]"
               ></el-button>
             </template>
           </el-table-column>
@@ -89,42 +175,152 @@
   </div>
 </template>
 <script>
+import { checkRoleId, isAdmin } from "../../../utils/checkRoleId.js";
 export default {
   name: "goodType",
   data() {
     return {
+      parentTypeVal: "", //父类型修改类型
       goodTypeTable: false,
       pos: "", //计算行列
       serchText: "", //搜索内容
       //管理商品类型选择器
       typeOptions: [],
-      typeOptionsCope:[],
+      typeOptionsCope: [],
       parentType: [],
       SpanArr: [], //获取表格合并行列数
       goodType: "", //商品子类型
       goodTypeList: [], //获取所有商品类型
-      pagesize: 10,
+      FgoodTypeList: [],
+      pagesize: 10, //分页控制
       currentPage: 1,
-      total: 1000
+      total: 1000,
+      showEdit: [], //显示子类型编辑框
+      showParentEdit: [], //显示父类型编辑框
+      tableChecked2: []
     };
   },
 
   methods: {
-    parentTypeFilter(val){
-      this.value = val;
-        if (val) { //val存在
-          this.typeOptions = this.typeOptionsCope.filter((item) => {
-            if (!!~item.pname.indexOf(val) || !!~item.pname.toUpperCase().indexOf(val.toUpperCase())) {
-              return true
+    //检查权限
+    checkAdmin() {
+      if (isAdmin != 700 && isAdmin != 701) {
+        this.$message({
+          type: "error",
+          message: "你没有权限进行此操作!"
+        });
+        throw SyntaxError();
+      }
+    },
+    //获取批量选择的行
+    handleSelectionChange(val) {
+      this.tableChecked2 = val;
+    },
+    //点击编辑
+    handleEdit(index, row) {
+      for(var i = 0;i<this.goodTypeList.length;i++){
+        if(this.showEdit[i]){
+          return
+        }
+      }
+      this.checkAdmin();
+      this.showGoodType()
+      this.showEdit[index] = true;
+    },
+    //取消编辑
+    cancelEdit(index, row) {
+      this.showEdit[index] = false;
+      this.showGoodType()
+    },
+
+    //修改子类型
+    handleUpdate(row,index) {
+      if (row.cname != null && row.cname != "") {
+        var goodType = {
+          id: row.id,
+          cname: row.cname
+        };
+        this.$axios
+          .get("/goods/goodTypeModify", { params: goodType })
+          .then(resp => {
+            if (resp.data.isSuccess) {
+              this.$message({
+                type: "success",
+                message: "修改成功!"
+              });
+              this.showGoodType();
+              this.showEdit[index] = false 
+            } else {
+              this.$message({
+                type: "error",
+                message: "修改失败!"
+              });
             }
           })
-        } else { //val为空时，还原数组
-          this.typeOptions = this.typeOptionsCope;
+          .catch(function(error) {
+            console.log(error);
+          });
+      } else {
+        this.$message({
+          type: "error",
+          message: "类型名称不能为空!"
+        });
+      }
+    },
+    //点击编辑父类型
+    parentEdit(index, row) {
+        for(var i = 0;i<this.typeOptions.length;i++){
+        if(this.showParentEdit[i]){
+          return
         }
-      
+      }
+      this.checkAdmin();
+      this.showGoodType();
+      this.showParentEdit[index] = true;
+    },
+    //取消父编辑
+    cancelEdit2(index, row) {
+      this.showGoodType();
+      this.showParentEdit[index] = false;
+    },
+
+    //修改父类型
+    handleUpdate2(row,index) {
+      if (row.pname != null && row.pname != "") {
+        var parentGoodType = {
+          id: row.id,
+          pname: row.pname
+        };
+        this.$axios
+          .get("/goods/parentGoodTypeModify", { params: parentGoodType })
+          .then(resp => {
+            if (resp.data.isSuccess) {
+              this.$message({
+                type: "success",
+                message: "修改成功!"
+              });
+               this.showGoodType();
+              this.showParentEdit[index] = false 
+            } else {
+              this.$message({
+                type: "error",
+                message: "修改失败!"
+              });
+            }
+          })
+          .catch(function(error) {
+            console.log(error);
+          });
+      } else {
+        this.$message({
+          type: "error",
+          message: "类型名称不能为空!"
+        });
+      }
     },
     //添加商品类型
     addType() {
+      this.checkAdmin();
       const that = this;
       if (
         this.parentType != null &&
@@ -163,6 +359,40 @@ export default {
       } else {
         alert("请选择父类型");
       }
+    },
+    //添加商品父类型
+    addParentType() {
+      this.checkAdmin();
+      const that = this;
+        for (var j = 0; j < this.typeOptions.length; j++) {
+          if (this.parentTypeVal == this.typeOptions[j].pname) {
+            alert("父类型已存在，请重新输入");
+            return;
+          }
+        }
+        var params = new URLSearchParams();
+        params.append("pname", this.parentTypeVal);
+        this.$axios
+          .post("/goods/addParentType", params)
+          .then(response => {
+            if (!response.data.isSuccess) {
+              this.$error({
+                type: "error",
+                message: "提交失败!"
+              });
+              return;
+            } else {
+              this.$message({
+                type: "success",
+                message: "提交成功!"
+              });
+              this.showGoodType();
+            }
+          })
+          .catch(err => {
+            console.log(error);
+          });
+      
     },
     //计算要合并的行列
     getRowAndColumn(arr) {
@@ -211,15 +441,16 @@ export default {
     //显示商品类型并计算要合并的行列数
     showGoodType() {
       this.$axios.get("/goods/showType").then(res => {
-        console.log(res);
         this.goodTypeList = res.data.data;
+        this.FgoodTypeList = res.data.data;
         this.total = this.goodTypeList.length;
         this.getRowAndColumn(this.goodTypeList);
-        this.typeOptions = res.data.data2;
+        this.typeOptions = res.data.data2; //获取父类型列表
       });
     },
     //删除子类型
     deleteGoodType(id) {
+      this.checkAdmin();
       this.$confirm("此操作将删除该商品, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -256,13 +487,57 @@ export default {
             message: "已取消删除"
           });
         });
+    },
+    //删除父类型
+    deletePatrentGoodType(id) {
+      this.checkAdmin();
+      this.$confirm("此操作将删除该商品, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          this.$axios
+            .get("/goods/parentGoodTypedelete", {
+              params: {
+                parentGoodTypeId: id
+              }
+            })
+            .then(response => {
+              if (response.data.isSuccess) {
+                this.$message({
+                  type: "success",
+                  message: "删除成功!"
+                });
+                this.showGoodType();
+              } else {
+                this.$message({
+                  type: "error",
+                  message: "删除失败"
+                });
+              }
+            })
+            .catch(function(error) {
+              console.log(error);
+            });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
     }
+  },
+
+  created() {
+    checkRoleId();
   }
 };
 </script>
 
 <style>
-.add_title{
+.add_title {
   font-size: 14px;
   color: #282c34;
 }

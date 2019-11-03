@@ -6,6 +6,7 @@ import store from '../store'
 const Order = () => import('../components/main-item/order.vue')
 const Shopping = () => import('../components/main-item/shopping.vue')
 const UserManager = () => import('../components/main-item/userManager.vue')
+const AuthManage = () => import('../components/main-item/authManage.vue')
 const Main = () => import('../components/main_content')
 const Register = () => import('../components/function/register.vue')
 const Login = () => import('../components/function/login.vue')
@@ -53,7 +54,12 @@ const routes = [
       {
         path: 'usermanager',
         component: UserManager
+      },
+      {
+        path: 'authmanage',
+        component: AuthManage
       }
+      
     ]
   },
   {
